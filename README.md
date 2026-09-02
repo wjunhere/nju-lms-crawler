@@ -22,14 +22,14 @@
 **1. 装依赖**
 
 ```bash
-cd B:/nju-lms-crawler
+cd <你的项目目录>
 pip install -r requirements.txt
 ```
 
 **2. 起一个「登录过 LMS 并开了调试端口」的浏览器**
 
 ```bash
-"C:\Program Files\Google\Chrome\Application\chrome.exe" --remote-debugging-port=9224 --user-data-dir="C:/Users/wjun/nju_chrome_profile"
+"C:\Program Files\Google\Chrome\Application\chrome.exe" --remote-debugging-port=9224 --user-data-dir="C:/Users/<你的用户名>/lms_chrome_profile"
 ```
 
 弹出的窗口里登录一次你的课程 LMS，然后**保持它开着**。✔️ 理解细节看[一次性设置](#一次性设置)。
@@ -74,7 +74,7 @@ urllib 下载（临时直链自包含，普通 HTTP 即可）
 > 下面为**单行**命令，PowerShell / cmd 可直接粘贴运行；若想分行，PowerShell 用反引号(backtick)续行，cmd 用 `^` 续行。
 
 ```bash
-"C:\Program Files\Google\Chrome\Application\chrome.exe" --remote-debugging-port=9224 --user-data-dir="C:/Users/wjun/nju_chrome_profile"
+"C:\Program Files\Google\Chrome\Application\chrome.exe" --remote-debugging-port=9224 --user-data-dir="C:/Users/<你的用户名>/lms_chrome_profile"
 ```
 
 - 弹出的窗口里登录**一次**你的课程 LMS。
@@ -114,10 +114,10 @@ pip install -r requirements.txt   # 只装 playwright
 ## 日常用法
 
 ```bash
-cd B:/nju-lms-crawler
+cd <你的项目目录>
 python crawler.py --base-url https://your-lms.example 41445                       # 下载一个活动的全部附件
 python crawler.py --base-url https://your-lms.example 41445 38895                 # 多个活动
-python crawler.py --base-url https://your-lms.example 41445 --out B:/deeptutor/downloads   # 指定输出目录
+python crawler.py --base-url https://your-lms.example 41445 --out <你的输出目录>   # 指定输出目录
 python crawler.py --base-url https://your-lms.example 41445 --no-download         # 只列出附件、不下载
 python crawler.py --base-url https://your-lms.example 41445 --cdp http://127.0.0.1:9224    # 指定 CDP 端点
 ```
@@ -140,7 +140,7 @@ python crawler.py --base-url https://your-lms.example 41445 --cdp http://127.0.0
    - [598229] Experiments_on_Loongson.pdf
   ✅ Experiments_on_Loongson.pdf  5476072 字节 -> downloads\Experiments_on_Loongson.pdf
 
-完成：下载 1 个，失败 0 个，仅列出 0 个。输出目录=B:\nju-lms-crawler\downloads
+完成：下载 1 个，失败 0 个，仅列出 0 个。输出目录=<你的输出目录>
 ```
 
 ---
