@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-NJU 智汇南雍 LMS 课件下载器 —— 复用你已登录的浏览器会话。
+高校课程 LMS 课件下载器 —— 复用你已登录的浏览器会话。
 
 原理：你只需让一个"登录过 LMS 的 Chrome/Edge"以 --remote-debugging-port 启动，
 本脚本用 playwright 连上它(connect_over_cdp)，在登录态下 fetch 后端 API 拿到
@@ -9,10 +9,10 @@ NJU 智汇南雍 LMS 课件下载器 —— 复用你已登录的浏览器会话
 依赖：仅 playwright（用于连已登录浏览器）。下载用标准库 urllib，无需 requests。
 
 用法：
-    python crawler.py 41445 38895                 # 按活动 id 下载全部附件
-    python crawler.py 41445 --out B:/deeptutor    # 指定输出目录(默认 ./downloads)
-    python crawler.py 41445 --cdp http://127.0.0.1:9224       # 指定 CDP 端点
-    python crawler.py 38895 --no-download         # 只列出文件、不下载
+    python crawler.py --base-url https://your-lms.example 41445 38895   # 按活动 id 下载全部附件
+    python crawler.py --base-url https://your-lms.example 41445 --out B:/deeptutor
+    python crawler.py --base-url https://your-lms.example 41445 --cdp http://127.0.0.1:9224
+    python crawler.py --base-url https://your-lms.example 38895 --no-download
 """
 import argparse
 import json
@@ -22,7 +22,6 @@ import urllib.error
 import urllib.request
 from pathlib import Path
 
-LMS = "https://lms.nju.edu.cn"
 UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36"
 
 # 常见已登录 CDP 端点（Chrome=9224、Edge=9223），可按需用 --cdp 覆盖
@@ -73,11 +72,11 @@ def _preview_id_js(upload_id):
 
 
 # ---- 浏览器连接：逐个 CDP 端点尝试，直到连上并且已登录 LMS ----
-def connect(page, cdp_list):
+def connect(page, cdp_list, base_url):
     last = None
     for cdp in cdp_list:
         try:
-            page.goto(LMS, wait_until="domcontentloaded", timeout=20000)
+            page.goto(base_url, wait_until="domcontentloaded", timeout=20000)
             probe = page.evaluate(
                 "(async()=>{const r=await fetch('/api/activities/38895',{headers:{Accept:'application/json'}});"
                 "const ct=(r.headers.get('content-type')||'');return {ok:r.ok, ct};})()"
@@ -121,7 +120,8 @@ def fetch_files(page, activity_id):
 
 
 def main():
-    ap = argparse.ArgumentParser(description="NJU 智汇南雍 LMS 课件下载器")
+    ap = argparse.ArgumentParser(description="高校课程 LMS 课件下载器（复用已登录浏览器会话）")
+    ap.add_argument("--base-url", required=True, help="你的课程 LMS 站点地址，如 https://your-lms.example")
     ap.add_argument("activities", nargs="+", help="活动 id，可多个")
     ap.add_argument("--cdp", help="CDP 端点，逗号分隔（默认 9224,9223）")
     ap.add_argument("--out", default="downloads", help="输出目录（默认 ./downloads）")
@@ -154,7 +154,7 @@ def main():
                 sys.exit(1)
         page = browser.contexts[0].new_page()
 
-        if not connect(page, cdp_list):
+        if not connect(page, cdp_list, args.base_url):
             sys.exit(1)
 
         for activity in args.activities:
